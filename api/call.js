@@ -1,41 +1,21 @@
-import twilio from "twilio"
-
 export default async function handler(req, res) {
-  // Handle CORS preflight
-  if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Credentials", true)
-    res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT")
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Content-Type, Authorization"
-    )
-    res.status(200).end()
-    return
-  }
-
+  // ✅ Handle CORS
   res.setHeader("Access-Control-Allow-Origin", "*")
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type")
 
-  const accountSid = process.env.TWILIO_SID
-  const authToken = process.env.TWILIO_AUTH_TOKEN
-  const client = twilio(accountSid, authToken)
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, error: "Method not allowed" })
+  if (req.method === "OPTIONS") {
+    return res.status(200).end()
   }
 
-  const { phoneNumber } = req.body
+  if (req.method === "POST") {
+    const { phoneNumber } = req.body
 
-  try {
-    await client.calls.create({
-      to: phoneNumber,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      twiml: `<Response><Say>Hi! This is your AI calling. Hope you're having an amazing day!</Say></Response>`,
-    })
+    // TODO: trigger the AI call logic (or a mock)
+    console.log(`Calling AI to phone number: ${phoneNumber}`)
 
-    res.status(200).json({ success: true })
-  } catch (err) {
-    console.error("Twilio call error:", err)
-    res.status(500).json({ success: false, error: err.message })
+    return res.status(200).json({ success: true })
   }
+
+  res.status(405).json({ error: "Method not allowed" })
 }
