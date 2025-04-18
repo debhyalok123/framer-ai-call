@@ -1,22 +1,25 @@
 export default async function handler(req, res) {
-  // ✅ Handle CORS
-  res.setHeader("Access-Control-Allow-Origin", "*") // For production: replace * with your Framer site URL
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type")
+    // Allow CORS
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*'); // You can replace * with your actual Framer domain
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Content-Type, Authorization'
+    );
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end()
-  }
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end(); // Handle CORS preflight
+    }
 
-  if (req.method === "POST") {
-    const { phoneNumber } = req.body
+    const { phoneNumber } = req.body;
 
-    // TODO: send verification code using some SMS service like Twilio
-    console.log(`Sending code to ${phoneNumber}`)
+    if (!phoneNumber) {
+        return res.status(400).json({ success: false, message: 'Missing phone number' });
+    }
 
-    // mock success
-    return res.status(200).json({ success: true })
-  }
+    // Example: Simulate sending OTP
+    console.log("Sending OTP to:", phoneNumber);
 
-  res.status(405).json({ error: "Method not allowed" })
+    return res.status(200).json({ success: true });
 }
