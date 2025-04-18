@@ -1,19 +1,22 @@
-import twilio from 'twilio';
-
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-
 export default async function handler(req, res) {
-  const { phoneNumber } = req.body;
+  // ✅ Handle CORS
+  res.setHeader("Access-Control-Allow-Origin", "*") // For production: replace * with your Framer site URL
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type")
 
-  try {
-    const verification = await client.verify
-      .v2
-      .services(process.env.TWILIO_VERIFY_SID)
-      .verifications
-      .create({ to: phoneNumber, channel: 'sms' });
-
-    res.status(200).json({ success: true, status: verification.status });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  if (req.method === "OPTIONS") {
+    return res.status(200).end()
   }
+
+  if (req.method === "POST") {
+    const { phoneNumber } = req.body
+
+    // TODO: send verification code using some SMS service like Twilio
+    console.log(`Sending code to ${phoneNumber}`)
+
+    // mock success
+    return res.status(200).json({ success: true })
+  }
+
+  res.status(405).json({ error: "Method not allowed" })
 }
